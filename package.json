@@ -1,0 +1,28 @@
+{
+  "name": "release-pr-action",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx ncc build src/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/compucorp/release-pr-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/compucorp/release-pr-action/issues"
+  },
+  "homepage": "https://github.com/compucorp/release-pr-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0",
+    "@vercel/ncc": "^0.27.0",
+    "dayjs": "^1.10.4",
+    "lodash": "^4.17.20",
+    "simple-git": "^2.32.0"
+  }
+}
