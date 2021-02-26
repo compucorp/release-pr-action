@@ -1,7 +1,7 @@
 {
   "name": "release-pr-action",
   "version": "1.0.0",
-  "description": "",
+  "description": "Create Release Pull Request Github Action",
   "main": "dist/index.js",
   "scripts": {
     "build": "npx ncc build src/main.js"

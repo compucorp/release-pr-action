@@ -95,7 +95,7 @@ async function createReleaseCandidateBranch () {
  * @returns {Promise} newly created pr object
  */
 async function createReleasePR (body) {
-  var pr = await octokit.pulls.create({
+  const pr = await octokit.pulls.create({
     owner,
     repo,
     title: RELEASE_PR_TITLE,
@@ -123,13 +123,10 @@ function getRcBranchName () {
  */
 function getReleasePRBody (mergedPRs) {
   const date = dayjs().format('DD MMMM, YYYY');
-  var body = `## Release Update - ${date}\n\n### Changelog\n`;
+  const releaseTitle = `## Release Update - ${date}\n\n### Changelog\n`;
+  const prTitles = mergedPRs.map((pr) =>  `\n* ${pr.title} #${pr.number} - @${pr.user}`);
 
-  _.each(mergedPRs, function (pr) {
-    body += `\n* ${pr.title} #${pr.number} - @${pr.user}`;
-  });
-
-  return body;
+  return releaseTitle + prTitles.join('');
 }
 
 /**
@@ -161,13 +158,13 @@ function getRepoName () {
  */
 async function getLastRelease () {
   try {
-    var release = await octokit.repos.getLatestRelease({
+    const release = await octokit.repos.getLatestRelease({
       owner: owner,
       repo: repo
     });
 
     return release.data;
-  } catch (e) {
+  } catch (error) {
     return;
   }
 }
@@ -182,7 +179,7 @@ async function getLastRelease () {
 async function getMergeCommitsSince (tagName) {
   const cwd = GITHUB_WORKSPACE + '/' + repo;
 
-  var commits = await simpleGit(cwd)
+  const commits = await simpleGit(cwd)
     .log({ from: BASE_BRANCH, to: tagName, '--merges': true });
 
   return commits.all;
@@ -196,7 +193,7 @@ async function getMergeCommitsSince (tagName) {
 async function getAllMergeCommitsSinceBeginning () {
   const cwd = GITHUB_WORKSPACE + '/' + repo;
 
-  var commits = await simpleGit(cwd)
+  const commits = await simpleGit(cwd)
     .log({ from: BASE_BRANCH, '--merges': true });
 
   // limiting results to 500 prs, as its unlikely to have more prs in a single
@@ -233,10 +230,10 @@ async function getPullRequests (lastRelease) {
  * @returns {Promise} list of pull requests
  */
 async function fetchPrsForCommits (commits) {
-  var promises = await _.map(commits, async function (commit) {
-    var url = 'GET /repos/' + owner + '/' + repo + '/commits/' + commit.hash + '/pulls';
+  const promises = await _.map(commits, async function (commit) {
+    const url = 'GET /repos/' + owner + '/' + repo + '/commits/' + commit.hash + '/pulls';
 
-    var data = await octokit.request(url, {
+    const data = await octokit.request(url, {
       owner: owner,
       repo: repo,
       commit_sha: commit.sha,
@@ -246,14 +243,14 @@ async function fetchPrsForCommits (commits) {
     return data.data;
   });
 
-  var pullRequests = await Promise.all(promises);
+  let pullRequests = await Promise.all(promises);
 
   return _.chain(pullRequests)
     .flatten()
     .filter(function (pr) {
-      var ifBelongsToCurrentRepo = pr.base.repo.full_name === owner + '/' + repo;
-      var ifPRToMaster = pr.base.ref === BASE_BRANCH;
-      var isNotAReleasePr = !_.find(pr.labels, { 'name': RELEASE_PR_IDENTIFIER_LABEL });
+      const ifBelongsToCurrentRepo = pr.base.repo.full_name === owner + '/' + repo;
+      const ifPRToMaster = pr.base.ref === BASE_BRANCH;
+      const isNotAReleasePr = !_.find(pr.labels, { 'name': RELEASE_PR_IDENTIFIER_LABEL });
 
       return ifBelongsToCurrentRepo && ifPRToMaster && isNotAReleasePr;
     })
