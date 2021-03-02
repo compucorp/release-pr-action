@@ -13,7 +13,7 @@ var owner, repo;
 const BASE_BRANCH = 'master';
 const RELEASE_VERSION = core.getInput('VERSION_NAME');
 const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE;
-const REPLACE_COMMANDS = JSON.parse(core.getInput('REPLACE')).commands;
+const IS_CIVICRM_EXTENTION = core.getInput('IS_CIVICRM_EXTENTION');
 const FILE_UPDATE_COMMIT_DESC = core.getInput('FILE_UPDATE_COMMIT_DESC');
 const RELEASE_PR_IDENTIFIER_LABEL = core.getInput('RELEASE_PR_IDENTIFIER_LABEL');
 const RELEASE_PR_TITLE = core.getInput('RELEASE_PR_TITLE');
@@ -74,10 +74,9 @@ async function cloneRepo () {
 async function createReleaseCandidateBranch () {
   const cwd = GITHUB_WORKSPACE + '/' + repo;
 
-  _.each(REPLACE_COMMANDS, function (cmd) {
-    cmd = cmd.replace('<<DATE>>', dayjs().format('YYYY-MM-DD'));
-    execSync(cmd, { cwd });
-  });
+  if (IS_CIVICRM_EXTENTION) {
+    performCivicrmExtentionFileUpdates(cwd);
+  }
 
   await simpleGit(cwd)
     .addConfig('user.name', COMMIT_USERNAME)
@@ -221,6 +220,19 @@ async function getPullRequests (lastRelease) {
   }
 
   return await fetchPrsForCommits(commits);
+}
+
+/**
+ * Perform release file updates for CiviCRM Extentions
+ *
+ * @param {string} cwd current working directory path
+ */
+function performCivicrmExtentionFileUpdates (cwd) {
+  var updateVersionCmd = `sed -i '/<version>/c\\  <version>${RELEASE_VERSION}</version>\' info.xml`;
+  var updateDateCmd = `sed -i '/<releaseDate>/c\\  <releaseDate>${dayjs().format('YYYY-MM-DD')}</releaseDate>\' info.xml`;
+
+  execSync(updateVersionCmd, { cwd });
+  execSync(updateDateCmd, { cwd });
 }
 
 /**
