@@ -28704,7 +28704,7 @@ var owner, repo;
 const BASE_BRANCH = 'master';
 const RELEASE_VERSION = core.getInput('VERSION_NAME');
 const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE;
-const IS_CIVICRM_EXTENTION = core.getInput('IS_CIVICRM_EXTENTION');
+const IS_CIVICRM_EXTENSION = core.getInput('IS_CIVICRM_EXTENSION');
 const FILE_UPDATE_COMMIT_DESC = core.getInput('FILE_UPDATE_COMMIT_DESC');
 const RELEASE_PR_IDENTIFIER_LABEL = core.getInput('RELEASE_PR_IDENTIFIER_LABEL');
 const RELEASE_PR_TITLE = core.getInput('RELEASE_PR_TITLE');
@@ -28765,8 +28765,8 @@ async function cloneRepo () {
 async function createReleaseCandidateBranch () {
   const cwd = GITHUB_WORKSPACE + '/' + repo;
 
-  if (IS_CIVICRM_EXTENTION) {
-    performCivicrmExtentionFileUpdates(cwd);
+  if (IS_CIVICRM_EXTENSION) {
+    performCivicrmExtensionFileUpdates(cwd);
   }
 
   await simpleGit(cwd)
@@ -28813,7 +28813,8 @@ function getRcBranchName () {
  */
 function getReleasePRBody (mergedPRs) {
   const date = dayjs().format('DD MMMM, YYYY');
-  const releaseTitle = `## Release Update - ${date}\n\n### Changelog\n`;
+  const releaseTitle = `:warning: **This is an auto generated Pull Request, manual changes can be done before sending for review.** :warning:
+  ## Release Update - ${date}\n\n### Changelog\n`;
   const prTitles = mergedPRs.map((pr) =>  `\n* ${pr.title} #${pr.number} - @${pr.user}`);
 
   return releaseTitle + prTitles.join('');
@@ -28914,11 +28915,11 @@ async function getPullRequests (lastRelease) {
 }
 
 /**
- * Perform release file updates for CiviCRM Extentions
+ * Perform release file updates for CiviCRM Extensions
  *
  * @param {string} cwd current working directory path
  */
-function performCivicrmExtentionFileUpdates (cwd) {
+function performCivicrmExtensionFileUpdates (cwd) {
   var updateVersionCmd = `sed -i '/<version>/c\\  <version>${RELEASE_VERSION}</version>\' info.xml`;
   var updateDateCmd = `sed -i '/<releaseDate>/c\\  <releaseDate>${dayjs().format('YYYY-MM-DD')}</releaseDate>\' info.xml`;
 
