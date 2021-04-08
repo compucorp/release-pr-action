@@ -5,7 +5,7 @@ To implement this action the following input values needs to be passed
 
 * GITHUB_TOKEN: Github Token
 * VERSION_NAME: New Release Version Name
-* IS_CIVICRM_EXTENSION: If its a CiviCRM extention. It updates the info.xml if its true.
+* IS_CIVICRM_EXTENSION: If it is a CiviCRM extension. It updates the info.xml if its true.
 * FILE_UPDATE_COMMIT_DESC: Commit name to update the file mentioned in Replace command
 * RELEASE_PR_TITLE: Title for the Release Pull Requests to be created
 * RELEASE_PR_IDENTIFIER_LABEL: Label to Identify Release Pull Request
